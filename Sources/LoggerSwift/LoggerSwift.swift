@@ -44,12 +44,12 @@ public enum LoggerFilterEntityType: Equatable {
 // MARK: - Logger
 public class Logger {
     // MARK: - Properties
-    public static var isOn = true
-    public static var filters = LoggerFilter()
+    public var isOn = true
+    public var filters = LoggerFilter()
     
     // MARK: - Date formatter
-    public static var dateFormat = "yyyy-MM-dd hh:mm:ssSSS"
-    static var dateFormatter: DateFormatter {
+    public var dateFormat = "yyyy-MM-dd hh:mm:ssSSS"
+    var dateFormatter: DateFormatter {
         let formatter           =   DateFormatter()
         formatter.dateFormat    =   dateFormat
         formatter.locale        =   Locale.current
@@ -59,7 +59,8 @@ public class Logger {
     }
     
     // MARK: - Methods
-    public static func log(
+    public func log(
+        domain: String,
         event: LoggerEvent = .info,
         message: String,
         fileName: String = #file,
@@ -75,12 +76,12 @@ public class Logger {
         
         // log
         #if DEBUG
-            print("\(Date().toString()) \(event.rawValue)[\(sourceFileName(filePath: fileName))]:\(line) \(column) \(funcName) -> \(message)")
+            print("\(dateFormatter.string(from: Date())) \(event.rawValue)[\(domain)][\(sourceFileName(filePath: fileName))]:\(line) \(column) \(funcName) -> \(message)")
         #endif
     }
     
     /// Indicate if should log the message or not, last condition will override sooner condition
-    static func shouldLog(
+    func shouldLog(
         event: LoggerEvent = .info,
         message: String,
         fileName: String = #file,
@@ -96,7 +97,7 @@ public class Logger {
     }
     
     // MARK: - Helpers
-    private static func shouldLog<T: Equatable>(entity: T, filter: LoggerFilterType<T>) -> Bool {
+    private func shouldLog<T: Equatable>(entity: T, filter: LoggerFilterType<T>) -> Bool {
         var shouldLog = true
         if !filter.includes.isEmpty {
             shouldLog = filter.includes.contains(entity)
@@ -108,7 +109,7 @@ public class Logger {
         return shouldLog
     }
     
-    private static func shouldLogMessage(_ message: String, filter: LoggerFilterType<String>) -> Bool {
+    private func shouldLogMessage(_ message: String, filter: LoggerFilterType<String>) -> Bool {
         var shouldLog = true
         if !filter.includes.isEmpty {
             shouldLog = filter.includes.contains(where: {message.contains($0)})
@@ -120,14 +121,8 @@ public class Logger {
         return shouldLog
     }
     
-    private static func sourceFileName(filePath: String) -> String {
+    private func sourceFileName(filePath: String) -> String {
         let components = filePath.components(separatedBy: "/")
         return components.isEmpty ? "" : components.last!
-    }
-}
-
-private extension Date {
-    func toString() -> String {
-        return Logger.dateFormatter.string(from: self as Date)
     }
 }
