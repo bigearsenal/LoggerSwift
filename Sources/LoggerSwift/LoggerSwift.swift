@@ -58,6 +58,9 @@ public class Logger {
         return formatter
     }
     
+    // MARK: - Initializer
+    public init() {}
+    
     // MARK: - Methods
     public func log(
         domain: String,
